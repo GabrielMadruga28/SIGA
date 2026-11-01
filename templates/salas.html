@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Sotrigo | Salas{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">MONITORAMENTO POR AMBIENTE</p>
+    <h1>Salas</h1>
+    <p class="subtitle">Cadastre as salas monitoradas e quem tem permissão de estar em cada uma.</p>
+  </div>
+  <div class="system-status"><span class="status-dot"></span> Sistema online</div>
+</section>
+
+<section class="card">
+  <div class="card-heading">
+    <div>
+      <p class="eyebrow">NOVA SALA</p>
+      <h2>Cadastrar sala</h2>
+    </div>
+  </div>
+  <form action="{{ url_for('criar_sala') }}" method="post" class="user-form" style="grid-template-columns: 1fr auto;">
+    <div class="field">
+      <label for="nome">Nome da sala</label>
+      <input id="nome" type="text" name="nome" placeholder="Ex.: Laboratório 2" required>
+    </div>
+    <button type="submit" class="btn-primary">Cadastrar sala</button>
+  </form>
+</section>
+
+<section class="card table-card">
+  <div class="card-heading">
+    <div>
+      <p class="eyebrow">SALAS CADASTRADAS</p>
+      <h2>Monitoramento ao vivo</h2>
+    </div>
+    <span class="table-count">{{ salas|length }} sala{{ 's' if salas|length != 1 }}</span>
+  </div>
+
+  {% if salas %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Sala</th>
+            <th>Pessoas autorizadas</th>
+            <th>Alertas não vistos</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in salas %}
+          <tr>
+            <td class="name-cell">{{ s['nome'] }}</td>
+            <td><span class="code-chip">{{ s['qtd_permitidos'] }} pessoa{{ 's' if s['qtd_permitidos'] != 1 }}</span></td>
+            <td>
+              {% if s['qtd_alertas'] > 0 %}
+                <span class="result-badge negado">⚠ {{ s['qtd_alertas'] }}</span>
+              {% else %}
+                <span class="result-badge liberado">✓ 0</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="actions">
+                <a href="{{ url_for('sala_monitorar', sala_id=s['id']) }}" class="btn-primary" style="text-decoration:none;display:inline-block;min-height:34px;line-height:34px;padding:0 12px;">
+                  ● Abrir câmera
+                </a>
+                <a href="{{ url_for('sala_visualizar', sala_id=s['id']) }}" class="btn-secondary" style="text-decoration:none;display:inline-block;min-height:34px;line-height:34px;padding:0 12px;">
+                  ▶ Visualizar
+                </a>
+                <a href="{{ url_for('sala_permissoes', sala_id=s['id']) }}" class="btn-secondary" style="text-decoration:none;display:inline-block;min-height:34px;line-height:34px;padding:0 12px;">
+                  Permissões
+                </a>
+                <form action="{{ url_for('excluir_sala', sala_id=s['id']) }}" method="post"
+                      onsubmit="return confirm('Excluir esta sala e todo o histórico dela?');">
+                  <button type="submit" class="btn-danger">Excluir</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div>◎</div>
+      <strong>Nenhuma sala cadastrada</strong>
+      <span>Cadastre a primeira sala acima pra começar a monitorar.</span>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}SIGA | Licença e Autores{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">{{ instituicao|upper }}</p>
+    <h1>SIGA: Sistema Integrado de Gestão de Acesso</h1>
+    <p class="subtitle">Plataforma de controle de acesso com verificação contínua de identidade por reconhecimento facial.</p>
+    <div class="badges">
+      <span class="badge">Protegido pela Lei do Software nº 9.609/1998</span>
+      <span class="badge">Source-Available (Avaliação Acadêmica)</span>
+      <span class="badge">Alinhado à LGPD</span>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="Seções">
+  <button type="button" class="tab-btn active" data-tab="autores">Autores e Desenvolvedores</button>
+  <button type="button" class="tab-btn" data-tab="licenca">Licença e Termos de Uso</button>
+  <button type="button" class="tab-btn" data-tab="citar">Como Citar</button>
+</nav>
+
+<!-- AUTORES -->
+<section id="tab-autores" class="tab-panel active">
+  <div class="card">
+    <p class="eyebrow">AUTORIA</p>
+    <h2>Autoria e desenvolvimento</h2>
+    <p class="subtitle">A concepção, a arquitetura e o desenvolvimento do sistema foram feitos pelos autores abaixo.</p>
+  </div>
+
+  <div class="doc-grid">
+    {% for a in autores %}
+    <article class="autor-card">
+      <span class="autor-tag">AUTOR</span>
+      <h2>{{ a.nome }}</h2>
+      <p><strong>Filiação:</strong> {{ instituicao }}</p>
+      {% if a.email %}<p><strong>Contato:</strong> {{ a.email }}</p>{% endif %}
+    </article>
+    {% endfor %}
+  </div>
+
+  <div class="doc-card destaque full" style="margin-top:14px;">
+    <h2>Titularidade patrimonial e propriedade intelectual</h2>
+    <p>
+      A titularidade patrimonial do SIGA pertence a
+      {% for a in autores %}{{ a.nome }}{% if loop.revindex == 2 %} e {% elif not loop.last %}, {% endif %}{% endfor %},
+      nos termos da Lei nº 9.609/1998 (software) e da Lei nº 9.610/1998 (direitos autorais).
+    </p>
+  </div>
+</section>
+
+<!-- LICENÇA -->
+<section id="tab-licenca" class="tab-panel">
+  <div class="doc-grid">
+
+    <article class="doc-card full">
+      <h2>Modelo de licenciamento</h2>
+      <p>
+        O SIGA é distribuído no modelo <strong>Source-Available (Avaliação Acadêmica)</strong>: o código
+        pode ser lido e executado para estudo e avaliação, mas continua sendo propriedade dos autores e
+        não é software livre. Há dois níveis de uso, descritos abaixo.
+      </p>
+    </article>
+
+    <article class="doc-card">
+      <h2>Licença de avaliação acadêmica</h2>
+      <p>Gratuita, concedida a quem avalia, estuda ou ensina com o projeto. Permite:</p>
+      <ul>
+        <li>ler o código-fonte e a documentação;</li>
+        <li>executar o sistema em ambiente próprio, para teste e avaliação;</li>
+        <li>citar o projeto em trabalhos acadêmicos, com a referência correta.</li>
+      </ul>
+      <p style="margin-top:10px;">Não permite uso em produção, nem uso com dados reais de pessoas sem o consentimento previsto na página de Privacidade e LGPD.</p>
+    </article>
+
+    <article class="doc-card">
+      <h2>Licença comercial</h2>
+      <p>Necessária para qualquer uso com finalidade econômica, como:</p>
+      <ul>
+        <li>instalar o SIGA em uma empresa ou instituição em operação real;</li>
+        <li>oferecer o sistema, ou algo derivado dele, como produto ou serviço;</li>
+        <li>vender, sublicenciar ou redistribuir o código.</li>
+      </ul>
+      <p style="margin-top:10px;">É concedida somente por contrato escrito com os autores, que define escopo, prazo, valor, suporte e responsabilidades de cada parte.</p>
+    </article>
+
+    <article class="doc-card">
+      <h2>Restrições gerais</h2>
+      <ul>
+        <li>É proibido remover os créditos de autoria ou apresentar o SIGA como obra de terceiros.</li>
+        <li>Modificações feitas para estudo não podem ser redistribuídas ou usadas comercialmente sem autorização.</li>
+        <li>O uso de reconhecimento facial deve respeitar a LGPD e a vontade das pessoas cadastradas.</li>
+      </ul>
+    </article>
+
+    <article class="doc-card">
+      <h2>Marcas e bibliotecas de terceiros</h2>
+      <p>
+        O nome e o logotipo da Sotrigo Alimentos pertencem à empresa e não fazem parte desta licença.
+        O SIGA usa bibliotecas de terceiros (como Flask, OpenCV, NumPy e fpdf2), que continuam sob as
+        licenças de seus respectivos autores.
+      </p>
+    </article>
+
+    <article class="doc-card full">
+      <h2>Garantia e responsabilidade</h2>
+      <p>
+        O SIGA é um projeto acadêmico, fornecido no estado em que se encontra e sem garantia de
+        funcionamento ou de precisão. Os autores não respondem por decisões tomadas com base nos
+        resultados do reconhecimento facial, que pode errar. Dúvidas sobre licenciamento e pedidos de
+        licença comercial devem ser enviados aos autores listados na aba Autores e Desenvolvedores.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<!-- COMO CITAR -->
+<section id="tab-citar" class="tab-panel">
+  <div class="doc-card">
+    <h2>Como citar o SIGA</h2>
+    <p>Em trabalhos acadêmicos, use a referência abaixo (modelo ABNT).</p>
+    <div class="citacao">
+      {% for a in autores %}{% set partes = a.nome.split() %}{{ partes[-1]|upper }}, {{ partes[:-1]|join(' ') }}{% if not loop.last %}; {% endif %}{% endfor %}.
+      <strong>SIGA: Sistema Integrado de Gestão de Acesso</strong>. Versão 1.0. Anápolis: {{ instituicao }}, {{ ano }}. Software.
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var botoes = document.querySelectorAll('.tab-btn');
+    var paineis = document.querySelectorAll('.tab-panel');
+
+    function abrir(nome) {
+      if (!document.getElementById('tab-' + nome)) { nome = 'autores'; }
+      botoes.forEach(function (b) { b.classList.toggle('active', b.dataset.tab === nome); });
+      paineis.forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + nome); });
+    }
+
+    botoes.forEach(function (b) {
+      b.addEventListener('click', function () {
+        abrir(b.dataset.tab);
+        history.replaceState(null, '', '#' + b.dataset.tab);
+      });
+    });
+
+    abrir(location.hash.replace('#', '') || 'autores');
+  })();
+</script>
+{% endblock %}

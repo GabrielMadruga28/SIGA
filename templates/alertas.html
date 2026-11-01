@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Sotrigo | Alertas{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">SEGURANÇA</p>
+    <h1>Alertas</h1>
+    <p class="subtitle">Pessoas identificadas em salas sem permissão de acesso.</p>
+  </div>
+  <div class="system-status"><span class="status-dot"></span> Sistema online</div>
+</section>
+
+<section class="card table-card">
+  <div class="card-heading">
+    <div>
+      <p class="eyebrow">{{ 'TODOS OS ALERTAS' if mostrar_todos else 'NÃO VISTOS' }}</p>
+      <h2>{{ eventos|length }} alerta{{ 's' if eventos|length != 1 }}</h2>
+    </div>
+    {% if mostrar_todos %}
+      <a href="{{ url_for('alertas') }}" class="btn-secondary" style="text-decoration:none;display:inline-block;min-height:34px;line-height:34px;padding:0 12px;">Ver só não vistos</a>
+    {% else %}
+      <a href="{{ url_for('alertas', todos=1) }}" class="btn-secondary" style="text-decoration:none;display:inline-block;min-height:34px;line-height:34px;padding:0 12px;">Ver todos</a>
+    {% endif %}
+  </div>
+
+  {% if eventos %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Sala</th>
+            <th>Pessoa</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in eventos %}
+          <tr>
+            <td class="date-cell">{{ e['data_hora'] }}</td>
+            <td><span class="code-chip">{{ e['sala_nome'] }}</span></td>
+            <td class="name-cell">{{ e['nome'] }}</td>
+            <td><span class="result-badge negado">⚠ Sem permissão</span></td>
+            <td>
+              {% if not e['visto'] %}
+              <form action="{{ url_for('marcar_alerta_visto', evento_id=e['id']) }}" method="post">
+                <button type="submit" class="btn-secondary">Marcar como visto</button>
+              </form>
+              {% else %}
+              <span class="code-chip">visto</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div>✓</div>
+      <strong>Nenhum alerta {{ 'no histórico' if mostrar_todos else 'pendente' }}</strong>
+      <span>Tudo certo por aqui.</span>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

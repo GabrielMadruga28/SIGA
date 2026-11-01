@@ -1,0 +1,167 @@
+{% extends "base.html" %} {% block title %}Sotrigo | Usuários Autorizados{%
+endblock %} {% block content %}
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">CADASTRO E PERMISSÕES</p>
+    <h1>Usuários Autorizados</h1>
+    <p class="subtitle">Gerencie quem pode utilizar a catraca.</p>
+  </div>
+  <div class="system-status">
+    <span class="status-dot"></span> Sistema online
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-heading">
+    <div>
+      <p class="eyebrow">NOVO CADASTRO</p>
+      <h2>Adicionar usuário</h2>
+    </div>
+  </div>
+  <form action="{{ url_for('cadastrar') }}" method="post" class="user-form" enctype="multipart/form-data">
+    <div class="field">
+      <label for="nome">Nome completo</label>
+      <input
+        id="nome"
+        type="text"
+        name="nome"
+        placeholder="Ex.: João da Silva"
+        required
+      />
+    </div>
+    <div class="field">
+      <label for="codigo">Código do cartão</label>
+      <input
+        id="codigo"
+        type="text"
+        name="codigo"
+        placeholder="Ex.: 1234"
+        required
+      />
+    </div>
+    <div class="field">
+      <label for="hora_inicio">Horário permitido (opcional)</label>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input id="hora_inicio" type="time" name="hora_inicio" style="width:auto;">
+        <span style="color:var(--muted);">até</span>
+        <input id="hora_fim" type="time" name="hora_fim" style="width:auto;">
+      </div>
+    </div>
+    <div class="field">
+      <label for="fotos">Fotos do rosto (opcional)</label>
+      <input id="fotos" type="file" name="fotos" accept="image/*" multiple />
+    </div>
+    <button type="submit" class="btn-primary">Cadastrar usuário</button>
+  </form>
+  <p class="form-help">
+    As fotos são usadas para o reconhecimento facial na catraca. Envie de <strong>2 a 5 fotos</strong>
+    nítidas, de frente, em ângulos/iluminação um pouco diferentes — quanto mais fotos, mais confiável
+    fica o reconhecimento (com só 1 foto, o sistema pode confundir com outra pessoa).
+    Deixe o horário em branco se a pessoa puder acessar a qualquer hora.
+  </p>
+</section>
+
+<section class="card table-card">
+  <div class="card-heading">
+    <div>
+      <p class="eyebrow">BASE DE USUÁRIOS</p>
+      <h2>Usuários cadastrados</h2>
+    </div>
+    <span class="table-count">{{ usuarios|length }} usuários</span>
+  </div>
+
+  {% if usuarios %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Foto</th>
+          <th>Nome</th>
+          <th>Código</th>
+          <th>Horário permitido</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td>
+            {% if u['tem_foto'] %}
+              <div style="display:flex;align-items:center;gap:6px;">
+                <img src="{{ url_for('static', filename='rostos/' ~ u['id'] ~ '/1.jpg') }}"
+                     alt="Foto de {{ u['nome'] }}"
+                     style="width:38px;height:38px;border-radius:8px;object-fit:cover;">
+                <span class="code-chip" title="fotos cadastradas para reconhecimento">
+                  {{ u['qtd_fotos'] }} foto{{ 's' if u['qtd_fotos'] != 1 }}
+                  {% if u['qtd_fotos'] == 1 %} ⚠{% endif %}
+                </span>
+              </div>
+            {% else %}
+              <span class="code-chip">sem foto</span>
+            {% endif %}
+          </td>
+          <td class="name-cell">{{ u['nome'] }}</td>
+          <td><span class="code-chip">{{ u['codigo'] }}</span></td>
+          <td>
+            <form action="{{ url_for('atualizar_horario', usuario_id=u['id']) }}" method="post"
+                  style="display:flex;gap:4px;align-items:center;">
+              <input type="time" name="hora_inicio" value="{{ u['hora_inicio'] or '' }}"
+                     style="width:auto;min-height:32px;padding:0 6px;font-size:0.75rem;">
+              <span style="color:var(--muted);font-size:0.7rem;">–</span>
+              <input type="time" name="hora_fim" value="{{ u['hora_fim'] or '' }}"
+                     style="width:auto;min-height:32px;padding:0 6px;font-size:0.75rem;">
+              <button type="submit" class="btn-secondary" style="min-height:32px;padding:0 8px;font-size:0.7rem;" title="Salvar horário">✓</button>
+            </form>
+          </td>
+          <td>
+            {% if u['ativo'] %}
+            <span class="result-badge liberado"><span>✓</span> Ativo</span>
+            {% else %}
+            <span class="result-badge negado"><span>×</span> Inativo</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="actions">
+              <form
+                action="{{ url_for('adicionar_foto', usuario_id=u['id']) }}"
+                method="post"
+                enctype="multipart/form-data"
+              >
+                <label class="btn-secondary" style="cursor:pointer;display:inline-block;">
+                  + Foto
+                  <input type="file" name="fotos" accept="image/*" multiple
+                         style="display:none" onchange="this.form.submit()">
+                </label>
+              </form>
+              <form
+                action="{{ url_for('toggle_usuario', usuario_id=u['id']) }}"
+                method="post"
+              >
+                <button type="submit" class="btn-secondary">
+                  {{ 'Desativar' if u['ativo'] else 'Ativar' }}
+                </button>
+              </form>
+              <form
+                action="{{ url_for('excluir_usuario', usuario_id=u['id']) }}"
+                method="post"
+                onsubmit="return confirm('Excluir este usuário?');"
+              >
+                <button type="submit" class="btn-danger">Excluir</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div>♙</div>
+    <strong>Nenhum usuário cadastrado</strong>
+    <span>Cadastre o primeiro usuário acima.</span>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

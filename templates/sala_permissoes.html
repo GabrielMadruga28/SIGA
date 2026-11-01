@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Sotrigo | Permissões — {{ sala['nome'] }}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">SALA: {{ sala['nome'].upper() }}</p>
+    <h1>Quem pode estar nessa sala</h1>
+    <p class="subtitle">Marque as pessoas autorizadas. Quem não estiver marcado gera um alerta se for identificado aqui.</p>
+  </div>
+  <a href="{{ url_for('salas') }}" class="nav-link" style="color:var(--sotrigo-green);">← Voltar pra Salas</a>
+</section>
+
+<section class="card">
+  <form action="{{ url_for('sala_permissoes', sala_id=sala['id']) }}" method="post">
+    {% if usuarios %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:50px;">Permitir</th>
+              <th>Nome</th>
+              <th>Código</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in usuarios %}
+            <tr>
+              <td>
+                <input type="checkbox" name="usuario_id" value="{{ u['id'] }}"
+                       {% if u['permitido'] %}checked{% endif %}
+                       style="width:18px;height:18px;">
+              </td>
+              <td class="name-cell">{{ u['nome'] }}</td>
+              <td><span class="code-chip">{{ u['codigo'] }}</span></td>
+              <td>
+                {% if u['ativo'] %}
+                  <span class="result-badge liberado"><span>✓</span> Ativo</span>
+                {% else %}
+                  <span class="result-badge negado"><span>×</span> Inativo</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button type="submit" class="btn-primary" style="margin-top:16px;">Salvar permissões</button>
+    {% else %}
+      <div class="empty-state">
+        <div>♙</div>
+        <strong>Nenhum usuário cadastrado ainda</strong>
+        <span>Cadastre usuários em "Usuários" antes de definir permissões de sala.</span>
+      </div>
+    {% endif %}
+  </form>
+</section>
+{% endblock %}

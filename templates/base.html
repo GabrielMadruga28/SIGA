@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#055a39">
+  <title>{% block title %}Sotrigo | Controle de Acesso{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="Sotrigo - início">
+        <img src="{{ url_for('static', filename='logo-sotrigo.jpg') }}" alt="Sotrigo Alimentos">
+        <div class="brand-text">
+          <strong>SOTRIGO</strong>
+          <span>Controle de Acesso</span>
+        </div>
+      </a>
+
+      <nav class="nav" aria-label="Navegação principal">
+        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+          <span>⌂</span> Painel
+        </a>
+        <a class="nav-link {% if request.endpoint == 'usuarios' %}active{% endif %}" href="{{ url_for('usuarios') }}">
+          <span>♙</span> Usuários
+        </a>
+        <a class="nav-link {% if request.endpoint in ['salas', 'sala_permissoes', 'sala_monitorar'] %}active{% endif %}" href="{{ url_for('salas') }}">
+          <span>▣</span> Salas
+        </a>
+        <a class="nav-link {% if request.endpoint == 'alertas' %}active{% endif %}" href="{{ url_for('alertas') }}" id="nav-alertas">
+          <span>⚠</span> Alertas
+          <span id="badge-alertas" style="display:none;background:var(--danger);color:#fff;border-radius:999px;padding:1px 7px;font-size:0.7rem;margin-left:4px;"></span>
+        </a>
+        {% if session.get('admin_logado') %}
+        <a class="nav-link" href="{{ url_for('logout') }}" title="Sair">
+          <span>⏻</span> {{ session.get('admin_usuario', 'Sair') }}
+        </a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <span>Sotrigo Alimentos</span>
+    <span>•</span>
+    <span>Sistema de Controle de Acesso</span>
+    <span>•</span>
+    <a href="{{ url_for('privacidade') }}">Privacidade e LGPD</a>
+    <span>•</span>
+    <a href="{{ url_for('licenca') }}">Licença e Autores</a>
+  </footer>
+
+  {% if session.get('admin_logado') %}
+  <script>
+    function atualizarBadgeAlertas() {
+      fetch("{{ url_for('api_alertas_contagem') }}")
+        .then(r => r.json())
+        .then(dados => {
+          const badge = document.getElementById('badge-alertas');
+          if (!badge) return;
+          if (dados.contagem > 0) {
+            badge.textContent = dados.contagem;
+            badge.style.display = 'inline-block';
+          } else {
+            badge.style.display = 'none';
+          }
+        })
+        .catch(() => {});
+    }
+    atualizarBadgeAlertas();
+    setInterval(atualizarBadgeAlertas, 10000);
+  </script>
+  {% endif %}
+</body>
+</html>

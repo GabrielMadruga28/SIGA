@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Sotrigo | Visualizando — {{ sala['nome'] }}{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">VISUALIZAÇÃO AO VIVO</p>
+    <h1>{{ sala['nome'] }}</h1>
+    <p class="subtitle">Abra "Abrir câmera" dessa mesma sala no celular — o que ele vê aparece aqui.</p>
+  </div>
+  <a href="{{ url_for('salas') }}" class="nav-link" style="color:var(--sotrigo-green);">← Voltar pra Salas</a>
+</section>
+
+<section class="card" id="painel-visualizacao"
+         data-sala-id="{{ sala['id'] }}"
+         data-url-quadro="{{ url_for('sala_ultimo_quadro', sala_id=sala['id']) }}"
+         data-url-status="{{ url_for('sala_status_ao_vivo', sala_id=sala['id']) }}"
+         style="max-width:760px;margin-left:auto;margin-right:auto;">
+  <div id="aviso-sem-sinal" class="status-panel" style="margin-bottom:16px;display:none;">
+    <div class="big-status-icon">◎</div>
+    <div>
+      <strong>Esperando o celular…</strong>
+      <p>Abra a página "Abrir câmera" dessa sala no celular pra começar a transmitir.</p>
+    </div>
+  </div>
+
+  <div style="position:relative;border-radius:12px;overflow:hidden;background:#000;min-height:200px;">
+    <img id="quadro-ao-vivo" src="{{ url_for('sala_ultimo_quadro', sala_id=sala['id']) }}"
+         style="width:100%;display:block;" alt="Câmera ao vivo">
+    <div style="position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:6px;
+                background:rgba(0,0,0,0.55);padding:5px 10px;border-radius:999px;">
+      <span id="pulso-ao-vivo" style="width:8px;height:8px;border-radius:50%;background:#c63f3f;"></span>
+      <span style="color:#fff;font-size:0.72rem;font-weight:700;letter-spacing:0.05em;">AO VIVO</span>
+    </div>
+  </div>
+
+  <div id="status-reconhecimento" class="status-panel" style="margin-top:16px;">
+    <div class="big-status-icon">◎</div>
+    <div>
+      <strong>Nenhuma leitura ainda</strong>
+      <p>Assim que o celular reconhecer um rosto, aparece aqui.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+const painel = document.getElementById('painel-visualizacao');
+const SALA_ID = painel.dataset.salaId;
+const URL_QUADRO = painel.dataset.urlQuadro;
+const URL_STATUS = painel.dataset.urlStatus;
+const img = document.getElementById('quadro-ao-vivo');
+const avisoSemSinal = document.getElementById('aviso-sem-sinal');
+const statusBox = document.getElementById('status-reconhecimento');
+const pulso = document.getElementById('pulso-ao-vivo');
+
+function atualizarQuadro() {
+  img.src = URL_QUADRO + '?t=' + Date.now();
+}
+
+function atualizarStatus() {
+  fetch(URL_STATUS)
+    .then(r => r.json())
+    .then(dados => {
+      avisoSemSinal.style.display = dados.tem_sinal ? 'none' : 'flex';
+      pulso.style.opacity = dados.tem_sinal ? '1' : '0.25';
+
+      const resultado = dados.resultado;
+      if (!resultado) return;
+
+      const icone = statusBox.querySelector('.big-status-icon');
+      const titulo = statusBox.querySelector('strong');
+      const texto = statusBox.querySelector('p');
+
+      if (resultado.status === 'sem_rosto') {
+        icone.style.background = 'var(--sotrigo-green)';
+        titulo.textContent = 'Nenhum rosto no quadro';
+        texto.textContent = 'Última verificação às ' + resultado.quando;
+      } else if (resultado.permitido) {
+        icone.style.background = 'var(--success)';
+        icone.textContent = '✓';
+        titulo.textContent = 'Autorizado: ' + resultado.nome;
+        texto.textContent = 'Última verificação às ' + resultado.quando;
+        statusBox.style.background = 'var(--success-bg)';
+      } else {
+        icone.style.background = 'var(--danger)';
+        icone.textContent = '⚠';
+        titulo.textContent = 'ALERTA: ' + resultado.nome + ' sem permissão';
+        texto.textContent = 'Última verificação às ' + resultado.quando;
+        statusBox.style.background = 'var(--danger-bg)';
+      }
+    })
+    .catch(() => {});
+}
+
+setInterval(atualizarQuadro, 1200);
+setInterval(atualizarStatus, 1500);
+atualizarQuadro();
+atualizarStatus();
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#055a39">
+  <title>Sotrigo | Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+  <div class="card" style="width:100%;max-width:380px;">
+    <div style="text-align:center;margin-bottom:22px;">
+      <img src="{{ url_for('static', filename='logo-sotrigo.jpg') }}" alt="Sotrigo Alimentos"
+           style="width:72px;height:72px;object-fit:cover;border-radius:12px;">
+      <h1 style="margin-top:12px;">Controle de Acesso</h1>
+      <p class="subtitle">Entre com sua conta de administrador</p>
+    </div>
+
+    {% if erro %}
+      <div class="status-panel" style="background:var(--danger-bg);border-color:#f3c9c9;margin-bottom:16px;">
+        <div class="big-status-icon" style="background:var(--danger);">×</div>
+        <div>
+          <strong style="color:var(--danger);">Não foi possível entrar</strong>
+          <p>{{ erro }}</p>
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" class="access-form">
+      <label for="usuario">Usuário</label>
+      <input id="usuario" type="text" name="usuario" placeholder="admin" required autofocus autocomplete="username">
+
+      <label for="senha" style="margin-top:14px;">Senha</label>
+      <input id="senha" type="password" name="senha" placeholder="••••••••" required autocomplete="current-password">
+
+      <button type="submit" class="btn-primary" style="width:100%;margin-top:20px;">Entrar</button>
+    </form>
+
+    <p class="form-help" style="text-align:center;margin-top:18px;">
+      <a href="{{ url_for('privacidade') }}">Privacidade e LGPD</a> •
+      <a href="{{ url_for('licenca') }}">Licença e Autores</a>
+    </p>
+  </div>
+</body>
+</html>

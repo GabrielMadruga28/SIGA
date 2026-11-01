@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}SIGA | Privacidade e LGPD{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">TRANSPARÊNCIA E PROTEÇÃO DE DADOS</p>
+    <h1>Privacidade e LGPD</h1>
+    <p class="subtitle">Como o SIGA coleta, usa, guarda e protege os dados pessoais de quem é cadastrado no sistema.</p>
+    <div class="badges">
+      <span class="badge">Lei nº 13.709/2018 (LGPD)</span>
+      <span class="badge">Dados biométricos: dado pessoal sensível</span>
+      <span class="badge">Uso acadêmico</span>
+    </div>
+  </div>
+</section>
+
+<section class="doc-grid">
+
+  <article class="doc-card destaque full">
+    <h2>Consentimento é obrigatório</h2>
+    <p>
+      O reconhecimento facial trata dados biométricos, que a LGPD classifica como dados pessoais
+      sensíveis (art. 5º, II). Por isso, nenhum rosto deve ser cadastrado no SIGA sem o consentimento
+      livre, específico e destacado da própria pessoa (art. 11, I). Quem não concordar não é cadastrado,
+      e isso não pode ser usado contra ela.
+    </p>
+  </article>
+
+  <article class="doc-card">
+    <h2>Escopo e compromisso</h2>
+    <p>
+      Esta política vale para todas as pessoas que têm dados tratados pelo SIGA: administradores do
+      painel e usuários autorizados cujo rosto foi cadastrado. O sistema segue os princípios de
+      finalidade, adequação, necessidade, transparência, segurança e prevenção previstos na LGPD.
+    </p>
+  </article>
+
+  <article class="doc-card">
+    <h2>Dados coletados</h2>
+    <ul>
+      <li>Identificação: nome e código de cada usuário autorizado.</li>
+      <li>Biometria: de 2 a 5 fotos do rosto por pessoa, usadas como referência no reconhecimento.</li>
+      <li>Regras de acesso: situação do cadastro (ativo ou inativo), janela de horário permitido e salas autorizadas.</li>
+      <li>Registros de uso: data e hora de cada tentativa de acesso, resultado (liberado ou negado), método usado e grau de confiança do reconhecimento.</li>
+      <li>Alertas: pessoas identificadas ou não identificadas em salas monitoradas sem permissão.</li>
+      <li>Administradores: nome de usuário e senha, esta guardada apenas como hash.</li>
+    </ul>
+  </article>
+
+  <article class="doc-card">
+    <h2>Finalidade e base legal</h2>
+    <p>
+      Os dados são usados somente para controlar o acesso a ambientes restritos e verificar se a
+      pessoa identificada tem permissão de estar ali. Não são usados para marketing, avaliação de
+      desempenho, perfilamento ou qualquer outra finalidade. A base legal é o consentimento do titular
+      para os dados biométricos e a execução das regras de acesso definidas pelo administrador para os
+      demais dados.
+    </p>
+  </article>
+
+  <article class="doc-card">
+    <h2>Armazenamento e segurança</h2>
+    <ul>
+      <li>Os dados ficam no banco local do sistema e na pasta de imagens do servidor onde o SIGA roda. Nada é enviado a serviços de terceiros.</li>
+      <li>Todas as telas de gestão exigem login de administrador.</li>
+      <li>As senhas são armazenadas com hash, nunca em texto aberto.</li>
+      <li>A comunicação usa HTTPS. No ambiente de teste o certificado é autoassinado, e em uso real deve ser trocado por um certificado válido.</li>
+      <li>Os quadros de vídeo das salas monitoradas são mantidos só na memória do servidor, para a visualização ao vivo, e não são gravados no banco.</li>
+    </ul>
+  </article>
+
+  <article class="doc-card">
+    <h2>Retenção e anonimização</h2>
+    <p>
+      Os dados são mantidos apenas pelo período de desenvolvimento e avaliação do projeto. Ao fim desse
+      período, ou quando o titular retirar o consentimento, as fotos do rosto e o cadastro são apagados
+      e os registros de acesso que sobrarem são anonimizados, de modo que não seja mais possível ligá-los
+      a uma pessoa.
+    </p>
+  </article>
+
+  <article class="doc-card">
+    <h2>Compartilhamento</h2>
+    <p>
+      Os dados não são vendidos nem repassados. O acesso é restrito aos administradores do sistema e aos
+      autores do projeto, para fins de desenvolvimento e de avaliação acadêmica na {{ instituicao }}.
+      Qualquer outro compartilhamento só ocorre com nova autorização do titular ou por obrigação legal.
+    </p>
+  </article>
+
+  <article class="doc-card">
+    <h2>Limitações do reconhecimento facial</h2>
+    <p>
+      O reconhecimento usa uma técnica clássica de visão computacional (LBPH), que pode errar, em
+      especial com pouca luz, rosto em ângulo ou câmera de baixa qualidade. Um alerta ou um bloqueio
+      indica apenas que o sistema não confirmou a identidade, e não prova que a pessoa agiu de forma
+      indevida. Por isso, decisões que afetem alguém devem passar por revisão humana, e o titular pode
+      pedir essa revisão (LGPD, art. 20).
+    </p>
+  </article>
+
+  <article class="doc-card full">
+    <h2>Direitos do titular</h2>
+    <p>Conforme o art. 18 da LGPD, toda pessoa cadastrada pode solicitar, a qualquer momento e sem custo:</p>
+    <ul>
+      <li>confirmação de que seus dados são tratados e acesso a eles;</li>
+      <li>correção de dados incompletos, inexatos ou desatualizados;</li>
+      <li>anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desacordo com a lei;</li>
+      <li>eliminação dos dados tratados com base no consentimento, inclusive suas fotos;</li>
+      <li>informação sobre com quem os dados foram compartilhados;</li>
+      <li>revogação do consentimento.</li>
+    </ul>
+  </article>
+
+  <article class="doc-card destaque full">
+    <h2>Canal para solicitações</h2>
+    <p>
+      Pedidos relacionados à privacidade devem ser feitos aos responsáveis pelo projeto, que atuam como
+      canal de atendimento ao titular. Os nomes e contatos estão na página
+      <a href="{{ url_for('licenca') }}">Licença e Autores</a>:
+      {% for a in autores %}{{ a.nome }}{% if not loop.last %} e {% endif %}{% endfor %}.
+    </p>
+  </article>
+
+</section>
+{% endblock %}

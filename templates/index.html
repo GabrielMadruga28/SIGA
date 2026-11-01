@@ -1,0 +1,199 @@
+{% extends "base.html" %} {% block title %}Sotrigo | Painel de Acessos{%
+endblock %} {% block content %} {% set total = registros|length %} {% set ns =
+namespace(liberados=0, negados=0) %} {% for r in registros %} {% if
+r['liberado'] %} {% set ns.liberados = ns.liberados + 1 %} {% else %} {% set
+ns.negados = ns.negados + 1 %} {% endif %} {% endfor %}
+
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">SISTEMA DE CONTROLE DE ACESSO</p>
+    <h1>Painel de Acessos</h1>
+    <p class="subtitle">
+      Acompanhe as movimentações e teste a leitura da catraca.
+    </p>
+  </div>
+  <div class="system-status">
+    <span class="status-dot"></span> Sistema online
+  </div>
+</section>
+
+<section class="stats-grid" aria-label="Resumo de acessos">
+  <article class="stat-card">
+    <span class="stat-label">Registros exibidos</span>
+    <strong>{{ total }}</strong>
+    <small>últimos acessos</small>
+  </article>
+  <article class="stat-card success">
+    <span class="stat-label">Liberados</span>
+    <strong>{{ ns.liberados }}</strong>
+    <small>acessos autorizados</small>
+  </article>
+  <article class="stat-card danger">
+    <span class="stat-label">Negados</span>
+    <strong>{{ ns.negados }}</strong>
+    <small>acessos bloqueados</small>
+  </article>
+  <article class="stat-card accent">
+    <span class="stat-label">Modo atual</span>
+    <strong>Teste</strong>
+    <small>leitura por código</small>
+  </article>
+</section>
+
+<section class="access-layout">
+  <article class="card access-card">
+    <div class="card-heading">
+      <div>
+        <p class="eyebrow">PORTARIA / CATRACA</p>
+        <h2>Identificação de acesso</h2>
+      </div>
+      <span class="pill">Em teste</span>
+    </div>
+
+    <form
+      action="{{ url_for('simular_facial') }}"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <label
+        for="foto-facial"
+        class="face-preview"
+        style="cursor: pointer"
+        aria-label="Enviar foto para reconhecimento facial"
+      >
+        <div class="face-corner tl"></div>
+        <div class="face-corner tr"></div>
+        <div class="face-corner bl"></div>
+        <div class="face-corner br"></div>
+        {% if resultado == "liberado" %}
+        <div class="face-icon">✓</div>
+        <strong>ACESSO LIBERADO</strong>
+        <span>{{ mensagem }}</span>
+
+        {% elif resultado == "bloqueado" %}
+        <div class="face-icon">✕</div>
+        <strong>ACESSO BLOQUEADO</strong>
+        <span>{{ mensagem }}</span>
+
+        {% else %}
+        <div class="face-icon">○</div>
+        <strong>Leitura facial</strong>
+        <span>Clique para enviar uma foto do rosto</span>
+        {% endif %}
+      </label>
+      <input
+        id="foto-facial"
+        type="file"
+        name="foto"
+        accept="image/*"
+        capture="user"
+        style="display: none"
+        onchange="this.form.submit()"
+      />
+    </form>
+
+    <div class="test-divider"><span>ou teste pelo código</span></div>
+
+    <form action="{{ url_for('simular') }}" method="post" class="access-form">
+      <label for="codigo">Código do cartão / usuário</label>
+      <div class="input-row">
+        <input
+          id="codigo"
+          type="text"
+          name="codigo"
+          placeholder="Digite o código"
+          required
+          autofocus
+          autocomplete="off"
+        />
+        <button type="submit" class="btn-primary">Verificar acesso</button>
+      </div>
+    </form>
+    <p class="form-help">
+      Use esta opção enquanto a leitura facial ainda está sendo desenvolvida.
+    </p>
+  </article>
+
+  <aside class="card info-card">
+    <div class="card-heading">
+      <div>
+        <p class="eyebrow">MONITORAMENTO</p>
+        <h2>Status da catraca</h2>
+      </div>
+    </div>
+    <div class="status-panel">
+      <div class="big-status-icon">✓</div>
+      <div>
+        <strong>Operação normal</strong>
+        <p>A catraca está pronta para receber uma nova tentativa de acesso.</p>
+      </div>
+    </div>
+    <div class="info-list">
+      <div><span>Banco de dados</span><strong>SQLite</strong></div>
+      <div><span>Servidor</span><strong>Flask</strong></div>
+      <div>
+        <span>Próxima etapa</span><strong>Reconhecimento facial</strong>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<section class="card table-card">
+  <div class="card-heading">
+    <div>
+      <p class="eyebrow">HISTÓRICO</p>
+      <h2>Últimos acessos</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <a href="{{ url_for('relatorio_csv') }}" class="btn-secondary" style="text-decoration:none;">⬇ CSV</a>
+      <a href="{{ url_for('relatorio_pdf') }}" class="btn-secondary" style="text-decoration:none;">⬇ PDF</a>
+      <span class="table-count">{{ total }} registros</span>
+    </div>
+  </div>
+
+  {% if registros %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Data / Hora</th>
+          <th>Método</th>
+          <th>Código</th>
+          <th>Nome</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in registros %}
+        <tr>
+          <td class="date-cell">{{ r['data_hora'] }}</td>
+          <td>
+            {% if r['metodo'] == 'facial' %}
+            <span class="code-chip">◉ Facial</span>
+            {% else %}
+            <span class="code-chip">⌨ Código</span>
+            {% endif %}
+          </td>
+          <td><span class="code-chip">{{ r['codigo'] or '—' }}</span></td>
+          <td class="name-cell">{{ r['nome'] }}</td>
+          <td>
+            {% if r['liberado'] %}
+            <span class="result-badge liberado"><span>✓</span> Liberado</span>
+            {% else %}
+            <span class="result-badge negado"><span>×</span> Negado</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div>◎</div>
+    <strong>Nenhum acesso registrado</strong>
+    <span>Os próximos testes aparecerão aqui.</span>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
