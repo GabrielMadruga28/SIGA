@@ -1,227 +1,129 @@
-# SIGA — Sistema de Catraca (simulado) — Sotrigo Alimentos
+# SIGA: Sistema Integrado de Gestão de Acesso
 
-Projeto de treino: sistema de controle de acesso simulado em software, com
-banco de dados de usuários autorizados, painel web de quem passou, e
-reconhecimento facial (via upload de foto, já que não há câmera disponível).
+Projeto Integrador do curso de Inteligência Artificial da Universidade Evangélica de Goiás (UniEVANGÉLICA), Anápolis, Goiás.
 
-## Como rodar
+O SIGA é um sistema web de controle de acesso com reconhecimento facial. Ele registra quem passa pela entrada de um ambiente restrito, bloqueia quem não está autorizado e monitora salas específicas por câmera, gerando alertas quando uma pessoa sem permissão é identificada. O protótipo foi desenvolvido para o cenário de uma empresa de alimentos (Sotrigo Alimentos), mas a lógica vale para qualquer ambiente com acesso controlado.
 
-1. Instale as dependências:
+## Autores
+
+- Gabriel Henrique Madruga Neres (Gabriel97mneres@gmail.com)
+- João Pedro Batista de Oliveira Santos
+
+## O que o sistema faz
+
+- **Cadastro de usuários autorizados:** cada pessoa é cadastrada com nome, código e de 2 a 5 fotos do rosto. Quanto mais fotos, em ângulos e iluminações diferentes, mais confiável fica o reconhecimento.
+- **Catraca simulada:** como o protótipo não usa câmera na entrada, a leitura facial é simulada pelo envio de uma foto. O sistema libera o acesso se reconhecer um rosto cadastrado e ativo, e bloqueia se não reconhecer ninguém, se o cadastro estiver inativo ou se a foto não tiver nenhum rosto. O acesso por código também funciona.
+- **Horários permitidos:** cada usuário pode ter uma janela de horário. Fora dela o acesso é bloqueado mesmo com o rosto reconhecido, e o sistema explica o motivo. Faixas que cruzam a meia-noite, como 22:00 às 06:00, funcionam normalmente.
+- **Histórico e relatórios:** todo acesso fica registrado com data, resultado, método e grau de confiança do reconhecimento. O painel exporta o histórico completo em CSV e em PDF.
+- **Salas monitoradas:** cada sala tem uma lista de pessoas com permissão. A câmera do celular, aberta pelo navegador, envia um quadro a cada 3 segundos para o servidor, que reconhece o rosto e confere a permissão. Se a pessoa não tiver permissão ou não for reconhecida, o sistema gera um alerta. No computador, a tela de visualização acompanha a sala em tempo quase real.
+- **Alertas:** lista as pessoas identificadas sem permissão, com contador atualizado automaticamente no menu.
+- **Login de administrador:** todas as telas de gestão exigem login.
+
+## Tecnologias
+
+Python 3, Flask, OpenCV (com o módulo de reconhecimento facial LBPH), NumPy, SQLite, fpdf2 para os relatórios em PDF e pyOpenSSL para o HTTPS local.
+
+## Como executar
+
+1. Baixe o código (botão **Code** e depois **Download ZIP**) e extraia em uma pasta. Se preferir, clone o repositório com o git.
+2. Abra o terminal dentro da pasta que contém o arquivo `app.py`.
+3. Instale as dependências:
+
    ```
    pip install -r requirements.txt
    ```
-   (`pyopenssl` é necessário pro servidor rodar com HTTPS, exigido pra
-   câmera funcionar pelo celular — ver seção "Salas monitoradas" abaixo)
 
-2. Rode o servidor:
+   No Windows, se o comando `pip` não for reconhecido, use `py -m pip install -r requirements.txt`.
+
+4. Inicie o servidor:
+
    ```
    python app.py
    ```
 
-3. Abra no navegador:
+   No Windows, também pode ser `py app.py`.
+
+5. Abra no navegador:
+
    ```
    https://localhost:5000
    ```
-   (o navegador vai avisar que o certificado não é confiável — normal,
-   é autoassinado; clique em "Avançado" > "Continuar mesmo assim")
 
-O banco `catraca.db` (SQLite) é criado automaticamente na primeira execução.
+   O navegador avisa que o certificado não é confiável. Isso é esperado, porque o certificado é autoassinado e serve só para testes locais. Escolha **Avançado** e depois **Continuar mesmo assim**. O HTTPS é necessário porque o navegador só libera a câmera do celular em conexão segura. Para usar a câmera de um celular, ele e o computador precisam estar na mesma rede Wi-Fi, e a página deve ser aberta pelo IP do computador, por exemplo `https://192.168.0.10:5000`.
 
-## Login de administrador
+O banco de dados `catraca.db` (SQLite) é criado automaticamente na primeira execução.
 
-Na primeira vez que rodar, o sistema cria um usuário administrador padrão:
+## Acesso ao sistema
 
-- **Usuário:** `admin`
-- **Senha:** `catraca123`
+Na primeira execução o sistema cria um administrador padrão:
 
-Troque essa senha depois de logar (não deixe a padrão em um ambiente real —
-ela está em texto aberto no código só pra facilitar o primeiro acesso).
-Sem login, nenhuma página do sistema pode ser acessada — todas as rotas
-redirecionam pra tela de login.
+- Usuário: `admin`
+- Senha: `catraca123`
 
-## Estrutura
+Essa senha existe apenas para facilitar o primeiro acesso e deve ser trocada em qualquer uso real. As senhas são guardadas no banco apenas como hash.
+
+## Privacidade e LGPD
+
+O SIGA trata dados biométricos, que a Lei nº 13.709/2018 (LGPD) classifica como dados pessoais sensíveis. Por isso o sistema tem uma página própria de política de privacidade, acessível sem login pelo rodapé de qualquer tela ou em `/privacidade`.
+
+A página explica que nenhum rosto deve ser cadastrado sem o consentimento livre, específico e destacado da pessoa, e descreve os dados coletados, a finalidade do tratamento e a base legal. Também trata de armazenamento e segurança, retenção e anonimização, compartilhamento, limitações do reconhecimento facial e direitos do titular (artigo 18 da LGPD). Os pedidos relacionados à privacidade são encaminhados aos autores do projeto.
+
+## Licença e autores
+
+A página `/licenca`, também pública e ligada ao rodapé, tem três abas: Autores e Desenvolvedores, Licença e Termos de Uso e Como Citar.
+
+O SIGA é distribuído no modelo **Source-Available (Avaliação Acadêmica)**. O código pode ser lido, executado e citado para estudo e avaliação, mas não é software livre e continua sendo propriedade dos autores, protegido pela Lei do Software (nº 9.609/1998) e pela Lei de Direitos Autorais (nº 9.610/1998). Há dois níveis de uso:
+
+- **Licença de avaliação acadêmica:** gratuita, para estudo, testes e ensino.
+- **Licença comercial:** necessária para qualquer uso com finalidade econômica, como instalar o sistema em uma empresa em operação real, oferecê-lo como produto ou serviço, vendê-lo ou redistribuí-lo. É concedida somente por contrato escrito com os autores, que define escopo, prazo, valor, suporte e responsabilidades.
+
+O nome e o logotipo da Sotrigo Alimentos pertencem à empresa e não fazem parte desta licença. As bibliotecas de terceiros continuam sob as licenças de seus respectivos autores.
+
+## Estrutura do projeto
 
 ```
 SIGA/
-├── requirements.txt                     # dependências (pip install -r requirements.txt)
-├── app.py                              # backend Flask (rotas, lógica, banco, login)
+├── app.py                               # servidor Flask: rotas, banco de dados, login
 ├── reconhecimento_facial.py             # detecção e reconhecimento facial (OpenCV)
-├── haarcascade_frontalface_default.xml  # classificador de detecção de rosto (OpenCV)
-├── catraca.db                            # criado automaticamente ao rodar
+├── haarcascade_frontalface_default.xml  # classificador de detecção de rosto
+├── requirements.txt                     # dependências
 ├── templates/
-│   ├── base.html                         # layout base (menu, header, botão de sair)
-│   ├── login.html                         # tela de login do administrador
-│   ├── index.html                         # painel: simular leitura + histórico + relatórios
-│   ├── usuarios.html                      # cadastro, horários e gerenciamento de usuários
-│   ├── salas.html                          # listagem e criação de salas monitoradas
-│   ├── sala_permissoes.html                # quem pode acessar cada sala
-│   ├── sala_monitorar.html                 # câmera ao vivo (celular) + análise contínua
-│   ├── sala_visualizar.html                # tela pro computador acompanhar a câmera do celular
-│   └── alertas.html                        # pessoas identificadas sem permissão
+│   ├── base.html                        # layout base (menu e rodapé)
+│   ├── login.html                       # login do administrador
+│   ├── index.html                       # painel de acessos, histórico e relatórios
+│   ├── usuarios.html                    # cadastro e gestão de usuários
+│   ├── salas.html                       # cadastro de salas monitoradas
+│   ├── sala_permissoes.html             # quem pode estar em cada sala
+│   ├── sala_monitorar.html              # câmera do celular com análise contínua
+│   ├── sala_visualizar.html             # acompanhamento da sala no computador
+│   ├── alertas.html                     # pessoas identificadas sem permissão
+│   ├── privacidade.html                 # Privacidade e LGPD
+│   └── licenca.html                     # Licença, autores e como citar
 └── static/
-    ├── style.css                          # estilo do painel
-    ├── logo-sotrigo.jpg                    # logo da marca
-    └── rostos/                             # fotos cadastradas (criado automaticamente)
-        └── <id_usuario>/
-            ├── 1.jpg
-            ├── 2.jpg
-            └── ...
+    ├── style.css                        # estilo do painel
+    └── logo-sotrigo.jpg                 # logotipo
 ```
 
-## Como usar
+As pastas `static/rostos` (fotos cadastradas) e `static/capturas` (fotos enviadas na catraca simulada) são criadas automaticamente durante o uso e guardam dados biométricos, por isso não fazem parte do repositório.
 
-1. Em **Usuários Autorizados**, cadastre uma pessoa com nome + código, e
-   envie **de 2 a 5 fotos do rosto** (campo aceita múltiplas fotos de uma
-   vez). Quanto mais fotos, em ângulos e iluminação diferentes, mais
-   confiável fica o reconhecimento.
-2. No **Painel de Acessos**, clique na área "Leitura facial" e envie uma
-   foto (pode ser outra foto da mesma pessoa) pra simular a catraca lendo
-   o rosto dela.
-3. O sistema libera se reconhecer um rosto cadastrado e ativo; bloqueia
-   se não reconhecer ninguém, se o cadastro estiver inativo, ou se não
-   detectar rosto nenhum na foto.
-4. Todo acesso (facial ou por código) fica registrado no histórico, com
-   o método usado e — no caso da facial — a "distância" de confiança
-   calculada (quanto menor, mais parecido).
+## Limitações conhecidas
 
-## Horários permitidos por usuário
+**Precisão do reconhecimento facial.** O sistema usa o algoritmo LBPH (Local Binary Patterns Histograms), uma técnica clássica de visão computacional que compara a textura da imagem e não aprende características estruturais do rosto como uma rede neural. Com uma única foto por pessoa, o sistema chegava a liberar rostos de pessoas diferentes. Aceitar várias fotos por pessoa e usar a distância média até todas elas melhorou bastante o resultado, mas ainda sobra uma pequena sobreposição: nos testes, a faixa de distância de fotos da própria pessoa (38 a 60) se encontra com a de uma pessoa diferente (57 a 63). Por isso nenhum limiar separa todos os casos. O limiar atual é 58.
 
-Em **Usuários Autorizados**, cada pessoa pode ter uma janela de horário
-(campo "até" no cadastro, ou editável depois direto na tabela). Se
-definido, o acesso só é liberado dentro dessa faixa — fora dela, é
-bloqueado mesmo que o cartão/rosto seja reconhecido corretamente, com uma
-mensagem explicando o motivo. Deixe os campos em branco pra permitir
-acesso a qualquer hora (comportamento padrão). Funciona até com faixas
-que cruzam a meia-noite (ex.: 22:00 às 06:00, pra turno noturno).
+**Identificação pelo rosto, não pelo corpo.** O sistema reconhece a pessoa pelo rosto. A detecção de silhueta diria apenas que há uma pessoa na imagem, sem informar quem ela é.
 
-## Relatórios (CSV e PDF)
+**Uma câmera por sala.** O protótipo simula uma câmera por sala. A rota de análise já aceita quadros de vários dispositivos, mas isso não foi testado com um segundo aparelho.
 
-No **Painel de Acessos**, os botões "CSV" e "PDF" no topo do histórico
-exportam **todos** os registros de acesso já feitos (não só os últimos
-50 mostrados na tela), prontos pra anexar num relatório ou planilha.
+**Imagens servidas sem login.** As fotos ficam em subpastas de `static`, que o Flask serve sem exigir login para quem conhece o endereço do arquivo. Em uso real, essas imagens devem ficar fora dessa pasta e ser entregues por uma rota protegida.
 
-## Salas monitoradas por câmera (celular ao vivo)
+**Uso local.** O servidor roda no modo de desenvolvimento do Flask com certificado autoassinado, o que serve para teste e demonstração, não para produção.
 
-Além da catraca (entrada geral), o sistema monitora **salas específicas**
-usando a câmera do celular direto pelo navegador — sem precisar instalar
-nenhum app.
+## Próximos passos
 
-**Como configurar:**
-1. Em **Salas**, cadastre a sala (ex.: "Sala do Servidor").
-2. Clique em **Permissões** e marque quem pode estar naquela sala.
-3. No **celular**, clique em **Abrir câmera** — aponte a câmera pra
-   entrada da sala.
-4. No **computador**, clique em **Visualizar** na mesma sala — a tela
-   mostra ao vivo o que a câmera do celular está vendo (atualiza
-   sozinha, tipo uma câmera de segurança), junto com o último resultado
-   do reconhecimento (autorizado ou alerta).
-
-**Como funciona:** a página captura um quadro da câmera a cada 3
-segundos e manda pro servidor, que roda o mesmo reconhecimento facial da
-catraca e verifica se aquela pessoa tem permissão pra estar ali. Se não
-tiver (ou não for reconhecida), gera um **alerta** — visível na aba
-**Alertas** do painel, com contador atualizado automaticamente no menu.
-O mesmo quadro enviado também fica disponível pra tela de
-**Visualizar**, que qualquer outro dispositivo logado (o computador, por
-exemplo) pode abrir pra acompanhar a câmera em "tempo quase real"
-(atualiza a cada 1,2s — não é streaming de vídeo de verdade, é uma foto
-se atualizando sozinha, mas cumpre o papel de acompanhar a sala à
-distância).
-
-**Importante — acesso por HTTPS:** o navegador só libera o uso da câmera
-em conexão segura (HTTPS) ou em localhost. Como você vai abrir a página pelo
-IP do computador no celular (ex.: `https://192.168.0.10:5000`), o
-`app.py` já sobe com HTTPS autoassinado (`ssl_context="adhoc"`) — o
-navegador vai avisar que o certificado "não é confiável"; isso é
-esperado (é autoassinado, só pra teste local), escolha "Avançado" >
-"Continuar mesmo assim" / "Acessar mesmo assim" pra prosseguir. Celular
-e computador precisam estar na **mesma rede Wi-Fi**.
-
-**Sobre "detectar o corpo inteiro":** o sistema identifica a pessoa pelo
-**rosto** (igual à catraca), não pelo corpo. Detecção de silhueta/corpo
-inteiro consegue dizer "tem uma pessoa aqui", mas não "quem é essa
-pessoa" — pra saber se ela tem permissão, é preciso reconhecer a
-identidade, e isso só é confiável pelo rosto com as técnicas disponíveis
-aqui. Ver a seção de limitações do reconhecimento facial mais abaixo —
-ela vale igualmente pra esse monitoramento de salas.
-
-**Limitação atual:** por enquanto o sistema simula com **1 câmera por
-sala** (o celular). O pedido original de "2 câmeras por sala" dá pra
-expandir cadastrando a mesma sala apontada por dois dispositivos
-diferentes (dois celulares/notebooks abrindo a mesma página de
-monitoramento ao mesmo tempo) — a rota `/salas/<id>/analisar_frame` já
-aceita quadros de qualquer origem que esteja logada, então múltiplos
-dispositivos monitorando a mesma sala já funcionaria sem mudar o
-código; só não foi testado com hardware real por não haver um segundo
-dispositivo disponível agora.
-
-## Bugs corrigidos nesta revisão
-
-Ao revisar o código, encontrei e corrigi:
-
-1. **A animação de "acesso liberado/bloqueado" nunca aparecia.** A rota
-   `/` lia o parâmetro `resultado` da URL mas esquecia de repassar ele
-   pro template (`render_template(...)` não incluía `resultado=resultado`).
-   Corrigido.
-2. **Risco de erro (`UnboundLocalError`)** em `/simular_facial` se o
-   formulário fosse enviado sem nenhuma foto selecionada. Agora a rota
-   verifica isso antes e simplesmente volta pro painel sem gerar erro.
-3. **Reconhecimento facial liberando (quase) qualquer rosto.** Essa era
-   a causa raiz do problema relatado ("libera todo mundo na facial, não
-   aparece bloqueado no histórico pra quem não é cadastrado"). Ver seção
-   abaixo.
-
-## ⚠️ Limitação conhecida do reconhecimento facial (importante pra apresentação)
-
-O sistema usava **LBPH** (Local Binary Patterns Histograms), um algoritmo
-clássico de visão computacional — não é uma rede neural. Testei com fotos
-reais (uma pessoa cadastrada, mais fotos de duas pessoas diferentes
-tentando o acesso) e cheguei a uma conclusão importante:
-
-- Com **1 foto cadastrada** por pessoa, o sistema praticamente liberava
-  qualquer rosto — inclusive de pessoas completamente diferentes — porque
-  o LBPH não tinha referência suficiente pra diferenciar.
-- Depois de corrigido pra aceitar **múltiplas fotos por pessoa** e usar a
-  **distância média** entre o rosto testado e todas as fotos cadastradas
-  (em vez da distância só até a foto mais parecida), a precisão melhorou
-  bastante, mas **ainda não é perfeita**: em teste com dados reais, a
-  faixa de confiança de fotos genuínas (38–60) ainda se sobrepõe um
-  pouco com a de uma pessoa diferente (57–63). Ou seja, **nenhum valor
-  de limiar separa 100% dos casos** com esse método.
-
-**Por que isso acontece:** o LBPH compara textura de pixels, não
-características faciais estruturais de verdade. Ele é sensível a
-iluminação, ângulo e qualidade da câmera — coisas que variam entre fotos
-da mesma pessoa tanto quanto entre pessoas diferentes, especialmente
-quando as fotos são tiradas no mesmo ambiente (mesma sala, roupa
-parecida, etc., como no caso de teste aqui).
-
-**O que resolveria isso de verdade:** um modelo de reconhecimento facial
-baseado em rede neural (embeddings faciais), como os usados pelas
-bibliotecas `face_recognition`/`dlib`, `deepface` ou serviços de nuvem
-(AWS Rekognition, Azure Face API, etc.). Esses modelos aprendem
-características faciais muito mais robustas a variação de luz/ângulo.
-Não deu pra usar aqui porque:
-- `dlib` não tem pacote pré-compilado pra essa plataforma/versão do
-  Python — só compilando do zero, o que é lento e nem sempre funciona
-- Modelos prontos como o SFace (OpenCV Zoo) ficam hospedados via Git LFS,
-  que não é acessível no ambiente de teste usado aqui
-
-**Isso é, na verdade, um ótimo ponto pra sua apresentação** — mostra que
-você entende as limitações da técnica que usou e sabe qual seria o
-próximo passo pra evoluir o projeto de verdade (que é justamente o
-projeto real da faculdade).
-
-## Ideias para evoluir o projeto (incluindo o projeto real da faculdade)
-
-- Trocar o LBPH por reconhecimento facial baseado em rede neural
-  (`face_recognition`, `deepface`, ou uma API de nuvem) — resolve a
-  limitação de precisão acima
-- Fazer alinhamento de rosto (rotação/normalização) antes de comparar,
-  o que ajuda até o LBPH tradicional
-- Trocar a simulação por leitura real de RFID/QR Code (Arduino/ESP32)
-- Dashboard com gráficos (quantidade de acessos por dia, top usuários)
-- Treinar e salvar o modelo de reconhecimento uma vez, em vez de
-  retreinar a cada tentativa de acesso
-- Permitir trocar a senha do administrador pela própria interface
-  (hoje precisa mexer direto no banco)
+- Trocar o LBPH por reconhecimento facial baseado em redes neurais (embeddings faciais), com bibliotecas como `face_recognition` ou `deepface`, o que resolve a limitação de precisão.
+- Alinhar o rosto (rotação e normalização) antes de comparar.
+- Treinar e salvar o modelo uma vez, em vez de retreinar a cada tentativa de acesso.
+- Substituir a catraca simulada por leitura real de RFID ou QR Code.
+- Criar um dashboard com gráficos de acessos por dia e por usuário.
+- Permitir a troca da senha do administrador pela própria interface.
+- Mover as fotos para fora de `static` e protegê-las com login.
